@@ -1,0 +1,14 @@
+black==23.7.0
+click==8.1.6
+colorama==0.4.6
+comtypes==1.2.0
+dxcam==0.0.5
+isort==5.12.0
+mypy-extensions==1.0.0
+numpy==1.25.2
+opencv-python==4.8.0.74
+packaging==23.1
+pathspec==0.11.2
+Pillow==10.0.0
+platformdirs==3.10.0
+tomli==2.0.1
