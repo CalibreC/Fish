@@ -26,8 +26,6 @@ python requirements.py
 ## 运行
 运行时，请以管理员权限运行脚本，否则无法截图。
 
-```bash
-
 # Goals
 
 - [x] 模型训练
