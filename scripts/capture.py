@@ -224,8 +224,6 @@ def photo_capture():
     if result == 1:
         # PrintWindow Succeeded
         # im.save("test.png")  # 调试时可打开，不保存图片可节省大量时间（约0.2s）
-        cv2.imshow("image", np.array(im))
-        cv2.waitKey(0)
         return im  # 返回图片
     else:
         print("fail")
@@ -238,4 +236,15 @@ if __name__ == "__main__":
     # cv2.imshow("image", cap_raw())
     # cv2.waitKey(0)
     # window_capturex()
-    photo_capture()
+    while True:
+        start = time.time()
+        img = photo_capture()
+        image = np.asarray(img)
+        # image = torch.from_numpy(img).cuda()
+        # print(img.shape)
+        cv2.imshow("image", image)
+        cv2.waitKey(1)
+        end = time.time()
+        fps = 1 / np.round(end - start, 3)
+        print(f"Frames Per Second : {fps}")
+
