@@ -6,11 +6,15 @@
 # @File             : capture.py
 # @Description      :
 
-import win32api, win32con, win32gui, win32ui
-import dxcam
 import time
+
 import cv2
+import dxcam
 import numpy as np
+import win32api
+import win32con
+import win32gui
+import win32ui
 from PIL import Image
 
 window_name = "原神"
@@ -49,6 +53,8 @@ h = rect[3] - y
 # region = [left, top, weight, height]
 region = (x, y, w, h)
 print(region)
+
+
 # 截取窗口的图像
 def capture_video():
     target_fps = 30
@@ -67,6 +73,7 @@ def capture_video():
     camera.stop()
     writer.release()
 
+
 def capture_image():
     camera = dxcam.create(output_color="BGRA")
     camera.start(video_mode=False, region=region)
@@ -74,9 +81,14 @@ def capture_image():
     camera.stop()
     cv2.imwrite("image.png", image)
 
+
 def grab_screen_dxcam():
-    camera = dxcam.create(device_idx=0,output_color="BGRA")  # returns a DXCamera instance on primary monitor
-    camera.start(region=(x, y, w, h), target_fps=30,video_mode=True)  # Optional argument to capture a region
+    camera = dxcam.create(
+        device_idx=0, output_color="BGRA"
+    )  # returns a DXCamera instance on primary monitor
+    camera.start(
+        region=(x, y, w, h), target_fps=30, video_mode=True
+    )  # Optional argument to capture a region
 
     # ... Do Something
     while True:
@@ -91,7 +103,8 @@ def grab_screen_dxcam():
 
     camera.stop()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # 同步播放并推理
     # capture_image()
     # capture_video()

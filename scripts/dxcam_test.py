@@ -2,9 +2,9 @@ import time
 
 import cv2
 import dxcam
-from PIL import Image
-import torch
 import numpy as np
+import torch
+from PIL import Image
 
 region = (0, 0, 2560, 1440)
 
@@ -94,14 +94,19 @@ def video_capture():
     )
     for i in range(60):
         image = camera.get_latest_frame()
-        cv2.imshow("Image",image)
+        cv2.imshow("Image", image)
     camera.stop()
     writer.release()
     cv2.waitKey(0)
 
+
 def grab_screen_dxcam():
-    camera = dxcam.create(device_idx=0,output_color="BGRA")  # returns a DXCamera instance on primary monitor
-    camera.start(region=(0, 0, 1920, 1080),target_fps=240,video_mode=True)  # Optional argument to capture a region
+    camera = dxcam.create(
+        device_idx=0, output_color="BGRA"
+    )  # returns a DXCamera instance on primary monitor
+    camera.start(
+        region=(0, 0, 1920, 1080), target_fps=240, video_mode=True
+    )  # Optional argument to capture a region
 
     # ... Do Something
     while True:
@@ -117,6 +122,7 @@ def grab_screen_dxcam():
     camera.stop()
 
     pass
+
 
 if __name__ == "__main__":
     # print(dxcam.device_info())
