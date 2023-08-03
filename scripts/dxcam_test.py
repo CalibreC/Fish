@@ -2,6 +2,8 @@ import time
 
 import cv2
 import dxcam
+import numpy as np
+import torch
 from PIL import Image
 
 region = (0, 0, 2560, 1440)
@@ -83,8 +85,51 @@ def max_fps():
     print(f"{title}: {fps / end_time}")
 
 
+def video_capture():
+    target_fps = 60
+    camera = dxcam.create(output_color="BGRA")
+    camera.start(target_fps=target_fps, video_mode=True)
+    writer = cv2.VideoWriter(
+        "video.mp4", cv2.VideoWriter_fourcc(*"mp4v"), target_fps, (3840, 2160)
+    )
+    for i in range(60):
+        image = camera.get_latest_frame()
+        cv2.imshow("Image", image)
+    camera.stop()
+    writer.release()
+    cv2.waitKey(0)
+
+
+def grab_screen_dxcam():
+    camera = dxcam.create(
+        device_idx=0, output_color="BGRA"
+    )  # returns a DXCamera instance on primary monitor
+    camera.start(
+        region=(0, 0, 1920, 1080), target_fps=240, video_mode=True
+    )  # Optional argument to capture a region
+
+    # ... Do Something
+    while True:
+        start = time.time()
+        img = camera.get_latest_frame()
+        # image = torch.from_numpy(img).cuda()
+        cv2.imshow("image", img)
+        cv2.waitKey(1)
+        end = time.time()
+        fps = 1 / np.round(end - start, 3)
+        print(f"Frames Per Second : {fps}")
+
+    camera.stop()
+
+    pass
+
+
 if __name__ == "__main__":
-    # screenshot()
+    # print(dxcam.device_info())
+    # print(dxcam.output_info())
+    screenshot()
     # screen_capture()
     # multiple_monitors()
-    max_fps()
+    # max_fps()
+    # video_capture()
+    # grab_screen_dxcam()
