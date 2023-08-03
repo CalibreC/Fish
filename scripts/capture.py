@@ -5,7 +5,7 @@
 # @Email            : fd98shadow@gmail.com
 # @File             : capture.py
 # @Description      :
-
+import sys
 import time
 from ctypes import windll
 
@@ -17,183 +17,110 @@ import win32api
 import win32con
 import win32gui
 import win32ui
-from PIL import Image
 from loguru import logger
+from PIL import Image
 
 # window_name = "原神"
 window_name = "Notepad"
+capture_method = "win32api"
+# capture_method = "dxcam"
 
-# 找到窗口，并将窗口置顶
-# hwnd = win32gui.GetDesktopWindow()
-# hwnd = win32gui.FindWindow(None, window_name)
-hwnd = win32gui.FindWindow(window_name, None)
-
-# 如果使用高 DPI 显示器（或 > 100% 缩放尺寸），添加下面一行，否则注释掉
-windll.user32.SetProcessDPIAware()
-
-# win32gui.ShowWindow(hwnd, win32con.SW_SHOWNORMAL)
-# win32gui.SetWindowPos(
-#           hwnd,
-#           win32.HWND_NOTOPMOST,
-#           0, 0, 0, 0,
-#           win32con.SWP_SHOWWINDOW |
-#           win32con.SWP_NOSIZE |
-#           win32con.SWP_NOMOVE)
-
-# Change the line below depending on whether you want the whole window
-# or just the client area.
-# 根据您是想要整个窗口还是只需要 client area 来更改下面的行。
-client = win32gui.GetClientRect(hwnd)
-window = win32gui.GetWindowRect(hwnd)
-
-
-
-left,top = window[0:2]
-right,bot = client[2:4]
-logger.info(f"client: {client}")
-logger.info(f"window: {window}")
-logger.info(f"left: {left}, top: {top}, right: {right}, bot: {bot}")
-left, top, right, bot = win32gui.GetClientRect(hwnd)
-logger.info(f"left: {left}, top: {top}, right: {right}, bot: {bot}")
-w = right - left
-h = bot - top
-
-
-# region = [left, top, weight, height]
-# w = int(w * scale)
-# h = int(h * scale)
-region = (left, top, w, h)
-
-
+# def capture_image():
+#     camera = dxcam.create(output_color="BGRA")
+#     camera.start(video_mode=False, region=region)
+#     image = camera.get_latest_frame()
+#     camera.stop()
+#     cv2.imwrite("image.png", image)
 
 # 截取窗口的图像
-def capture_video():
-    target_fps = 30
-    camera = dxcam.create(output_color="BGRA")
-    camera.start(target_fps=target_fps, video_mode=True, region=region)
-    writer = cv2.VideoWriter(
-        "video.mp4", cv2.VideoWriter_fourcc(*"mp4v"), target_fps, (w, h)
-    )
-    for i in range(60):
-        image = camera.get_latest_frame()
-        if image is not None:
-            print(image.shape)
-            writer.write(image)
-        else:
-            print("no image")
-    camera.stop()
-    writer.release()
+# def capture_video():
+#     target_fps = 30
+#     camera = dxcam.create(output_color="BGRA")
+#     camera.start(target_fps=target_fps, video_mode=True, region=region)
+#     writer = cv2.VideoWriter(
+#         "video.mp4", cv2.VideoWriter_fourcc(*"mp4v"), target_fps, (w, h)
+#     )
+#     for i in range(60):
+#         image = camera.get_latest_frame()
+#         if image is not None:
+#             print(image.shape)
+#             writer.write(image)
+#         else:
+#             print("no image")
+#     camera.stop()
+#     writer.release()
 
 
-def capture_image():
-    camera = dxcam.create(output_color="BGRA")
-    camera.start(video_mode=False, region=region)
-    image = camera.get_latest_frame()
-    camera.stop()
-    cv2.imwrite("image.png", image)
+def get_window_info():
+    """
 
-
-def grab_screen_dxcam():
-    camera = dxcam.create(
-        device_idx=0, output_color="BGRA", output_idx=0
-    )  # returns a DXCamera instance on primary monitor
-    print((left, top, w, h))
-    camera.start(
-        region=(left, top, w, h), target_fps=30, video_mode=True
-    )  # Optional argument to capture a region
-
-    # win32gui.SetForegroundWindow(hwnd)
-    # ... Do Something
-    while True:
-        start = time.time()
-        img = camera.get_latest_frame()
-        # image = torch.from_numpy(img).cuda()
-        cv2.imshow("image", img)
-        cv2.waitKey(1)
-        end = time.time()
-        fps = 1 / np.round(end - start, 3)
-        print(f"Frames Per Second : {fps}")
-
-    camera.stop()
-
-
-def cap_raw(region=None, fmt="RGB"):
-    print("before")
-    keyboard.wait("r")
-    print("OK")
-    win32gui.SetForegroundWindow(hwnd)
-    time.sleep(1)
-    # hwnd = win32gui.GetDesktopWindow()
-    wDC = win32gui.GetWindowDC(hwnd)
-    dcObj = win32ui.CreateDCFromHandle(wDC)
-    cDC = dcObj.CreateCompatibleDC()
-    dataBitMap = win32ui.CreateBitmap()
-
-    dataBitMap.CreateCompatibleBitmap(dcObj, w, h)
-
-    cDC.SelectObject(dataBitMap)
-    cDC.BitBlt((0, 0), (w, h), dcObj, (left, top), win32con.SRCCOPY)
-    # dataBitMap.SaveBitmapFile(cDC, bmpfilenamename)
-    signedIntsArray = dataBitMap.GetBitmapBits(True)
-    img = np.frombuffer(signedIntsArray, dtype="uint8")
-    img.shape = (h, w, 4)
-
-    # Free Resources
-    dcObj.DeleteDC()
-    cDC.DeleteDC()
-    win32gui.ReleaseDC(hwnd, wDC)
-    win32gui.DeleteObject(dataBitMap.GetHandle())
-
-    if fmt == "BGR":
-        return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGBA2BGR)
-    if fmt == "RGB":
-        return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGBA2RGB)
-    else:
-        raise ValueError("Cannot indetify this fmt")
-
-
-# 局部截图
-def window_capturex():
-    # proportion = round(win32print.GetDeviceCaps(win32gui.GetDC(0), win32con.DESKTOPHORZRES)/win32api.GetSystemMetrics(0), 2)
-    # print(proportion)
-    print("before")
-    keyboard.wait("r")
-    print("OK")
-    win32gui.SetForegroundWindow(hwnd)
-    time.sleep(0.05)
-    left, top, right, bot = win32gui.GetWindowRect(hwnd)
-    # left=int(left*proportion)
-    # top=int(top*proportion)
-    # right=int(right*proportion)
-    # bot=int(bot*proportion)
-    w = right - left
-    h = bot - top
-    hWndDC = win32gui.GetWindowDC(win32gui.GetDesktopWindow())
-    mfcDC = win32ui.CreateDCFromHandle(hWndDC)
-    saveDC = mfcDC.CreateCompatibleDC()
-    saveBitMap = win32ui.CreateBitmap()
-    saveBitMap.CreateCompatibleBitmap(mfcDC, w, h)
-    saveDC.SelectObject(saveBitMap)
-    saveDC.BitBlt((0, 0), (w, h), mfcDC, (left, top), win32con.SRCCOPY)
-    try:
-        saveBitMap.SaveBitmapFile(saveDC, "tempcap.bmp")
-    except Exception as e:
-        print("错误")
-        pass
-    win32gui.DeleteObject(saveBitMap.GetHandle())
-    saveDC.DeleteDC()
-    mfcDC.DeleteDC()
-    win32gui.ReleaseDC(win32gui.GetDesktopWindow(), hWndDC)
-
-
-def photo_capture():
+    :return: 窗口句柄，左上角坐标，右下角坐标
+    """
     hwnd = win32gui.FindWindow(window_name, None)
 
     # 如果使用高 DPI 显示器（或 > 100% 缩放尺寸），添加下面一行，否则注释掉
     windll.user32.SetProcessDPIAware()
 
     # 根据您是想要整个窗口还是只需要 client area 来更改下面的行。
-    left, top, right, bot = win32gui.GetClientRect(hwnd)
+    client = win32gui.GetClientRect(hwnd)
+    logger.info(f"client: {client}")
+    window = win32gui.GetWindowRect(hwnd)
+    logger.info(f"window: {window}")
+
+    left = client[0]
+    top = client[1]
+    right = client[2]
+    bot = client[3]
+
+    # left, top, right, bot = client[0], client[1], client[2], client[3]
+
+    if capture_method == "win32api":
+        pass
+    elif capture_method == "dxcam":
+        window_width = window[2] - window[0]
+        window_height = window[3] - window[1]
+        client_width = client[2] - client[0]
+        client_height = client[3] - client[1]
+        align = (window_width - client_width) / 2
+        left = int(window[0] + align)
+        right = int(window[2] - align)
+        bot = int(window[3] - align)
+        top_align = window_height - client_height - align
+        top = int(window[1] + top_align)
+    else:
+        raise ValueError("capture_method should be win32api or dxcam")
+
+    logger.info(f"left: {left}, top: {top}, right: {right}, bot: {bot}")
+    return hwnd, (left, top, right, bot)
+
+
+def dxcam_init():
+    camera = dxcam.create(
+        device_idx=0, output_color="BGRA", output_idx=0
+    )  # returns a DXCamera instance on primary monitor
+    return camera
+
+
+camera = dxcam_init()
+
+
+def dxcam_capture():
+    hwnd, (left, top, right, bot) = get_window_info()
+
+    im = camera.grab(region=(left, top, right, bot))
+
+    if im is not None:
+        # PrintWindow Succeeded
+        # im.save("test.png")  # 调试时可打开，不保存图片可节省大量时间（约0.2s）
+        return im  # 返回图片
+    else:
+        logger.error("截图失败")
+        return None
+
+
+def win32api_capture():
+    hwnd, (left, top, right, bot) = get_window_info()
+
     w = right - left
     h = bot - top
 
@@ -230,27 +157,33 @@ def photo_capture():
         return None
 
 
-def video_capture_win32api():
+def video_capture():
+    if capture_method == "win32api":
+        capture = win32api_capture
+    elif capture_method == "dxcam":
+        capture = dxcam_capture
+    else:
+        raise ValueError("capture_method should be win32api or dxcam")
+
     while True:
         start = time.time()
-        img = photo_capture()
+        img = capture()
         if img is not None:
             image = np.asarray(img)
-            # image = torch.from_numpy(img).cuda()
-            # print(img.shape)
+            # img = torch.from_numpy(img).cuda()
+            # 推理，后处理
             cv2.imshow("image", image)
             cv2.waitKey(1)
-            end = time.time()
-            fps = 1 / np.round(end - start, 3)
-            print(f"Frames Per Second : {fps}")
+        else:
+            time.sleep(0.04)
+        end = time.time()
+        fps = 1 / np.round(end - start, 3)
+        print(f"Frames Per Second : {fps}")
 
 
 if __name__ == "__main__":
-    # 同步播放并推理
-    # capture_image()
-    # capture_video()
-    # grab_screen_dxcam()
-    # cv2.imshow("image", cap_raw())
-    # cv2.waitKey(0)
-    # window_capturex()
-    video_capture_win32api()
+    logger.remove()  # 删除自动产生的handler
+    handle_id = logger.add(sys.stderr, level="WARNING")  # 添加一个可以修改控制的handler
+    # 模型初始化
+
+    video_capture()

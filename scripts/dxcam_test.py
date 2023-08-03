@@ -6,7 +6,8 @@ import numpy as np
 import torch
 from PIL import Image
 
-region = (0, 0, 2560, 1440)
+# region = (208, 235, 2560-208, 1440-235)
+region = (208, 235, 300, 300)
 
 
 def screenshot():
@@ -18,18 +19,19 @@ def screenshot():
         output_color: str = "RGB",      # support RGB, BGR, RGBA, BGRA, GRAY
         max_buffer_len: int = 64,       # 最大缓存帧数
     """
-    camera = dxcam.create()  # returns a DXCamera instance on primary monitor
-    # camera = dxcam.create(output_color="BGRA")
+    # camera = dxcam.create()  # returns a DXCamera instance on primary monitor
+    camera = dxcam.create(output_color="BGRA")
 
     frame = camera.grab(region=region)
-
-    Image.fromarray(frame).show()
+    # frame = camera.grab()
+    # Image.fromarray(frame).show()
 
     """
     Opencv需要反转颜色,dxcam.create时设置output_color="BGRA"后不需要反转
     """
-    # cv2.imshow('test.png', frame)
-    # cv2.waitKey(0)
+    cv2.imshow("test.png", frame)
+    # cv2.imwrite('test.png', frame)
+    cv2.waitKey(0)
 
     del camera
 
