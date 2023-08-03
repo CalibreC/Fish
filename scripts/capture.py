@@ -56,8 +56,8 @@ def get_window_info():
 
     :return: 窗口句柄，左上角坐标，右下角坐标
     """
+    # hwnd = win32gui.FindWindow(None, window_name)
     hwnd = win32gui.FindWindow(window_name, None)
-
     # 如果使用高 DPI 显示器（或 > 100% 缩放尺寸），添加下面一行，否则注释掉
     windll.user32.SetProcessDPIAware()
 
