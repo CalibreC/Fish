@@ -127,9 +127,9 @@ def grab_screen_dxcam():
 if __name__ == "__main__":
     # print(dxcam.device_info())
     # print(dxcam.output_info())
-    # screenshot()
+    screenshot()
     # screen_capture()
     # multiple_monitors()
     # max_fps()
     # video_capture()
-    grab_screen_dxcam()
+    # grab_screen_dxcam()
