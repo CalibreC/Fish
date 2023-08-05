@@ -5,16 +5,14 @@
 # @Email            : fd98shadow@gmail.com
 # @File             : capture.py
 # @Description      :
+import argparse
 import sys
 import time
 from ctypes import windll
 
 import cv2
 import dxcam
-import keyboard
 import numpy as np
-import win32api
-import win32con
 import win32gui
 import win32ui
 from loguru import logger
@@ -140,7 +138,13 @@ def win32api_capture():
     bmpstr = saveBitMap.GetBitmapBits(True)
 
     im = Image.frombuffer(
-        "RGB", (bmpinfo["bmWidth"], bmpinfo["bmHeight"]), bmpstr, "raw", "BGRX", 0, 1
+        "RGB",
+        (bmpinfo["bmWidth"], bmpinfo["bmHeight"]),
+        bmpstr,
+        "raw",
+        "BGRX",
+        0,
+        1,
     )
 
     win32gui.DeleteObject(saveBitMap.GetHandle())
@@ -181,9 +185,16 @@ def video_capture():
         print(f"Frames Per Second : {fps}")
 
 
+def make_parser():
+    parser = argparse.ArgumentParser("Genshin Fishing")
+    parser.add_argument("--mode", default="genshin", type=str, help="train or test")
+    return parser
+
+
 if __name__ == "__main__":
     logger.remove()  # 删除自动产生的handler
     handle_id = logger.add(sys.stderr, level="WARNING")  # 添加一个可以修改控制的handler
+    args = make_parser().parse_args()
     # 模型初始化
 
     video_capture()

@@ -1,17 +1,20 @@
 import sys
-import cv2
-sys.path.append("../yolov5-7.0/")
-from models.experimental import attempt_load
 
+import cv2
 import torch
-import torchvision
+
+sys.path.append("../yolov5-7.0/")
 
 
 def try_gpu(i=0):
-    """If GPU is available, return torch.device as cuda:i; else return torch.device as cpu."""
+    """
+    If GPU is available,
+    return torch.device as cuda:i;
+    else return torch.device as cpu.
+    """
     if torch.cuda.device_count() >= i + 1:
-        return torch.device(f'cuda:{i}')
-    return torch.device('cpu')
+        return torch.device(f"cuda:{i}")
+    return torch.device("cpu")
 
 
 device = try_gpu(0)
@@ -19,7 +22,7 @@ device = try_gpu(0)
 
 # 载入模型
 def load_model():
-    model = attempt_load("../weights/2023-08-02.pt", device=device)
+    # model = attempt_load("../weights/2023-08-02.pt", device=device)
     return model
 
 
@@ -36,8 +39,7 @@ def postprocess(prediction):
     return prediction
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     model = load_model()
     img = cv2.imread("1.png")
     image = torch.tensor(img)

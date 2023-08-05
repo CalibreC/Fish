@@ -3,8 +3,6 @@ import time
 import cv2
 import dxcam
 import numpy as np
-import torch
-from PIL import Image
 
 # region = (208, 235, 2560-208, 1440-235)
 region = (208, 235, 300, 300)

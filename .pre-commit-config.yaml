@@ -1,0 +1,21 @@
+# 设置为true时，预提交将在第一次失败后停止运行钩子。1.1.0版本新配置
+fail_fast: true
+
+repos:
+- repo: https://github.com/PyCQA/isort
+  rev: 5.12.0
+  hooks:
+  - id: isort
+    additional_dependencies: [toml]
+- repo: https://github.com/psf/black
+  rev: 23.7.0
+  hooks:
+  - id: black
+    args: [--config=./pyproject.toml]
+- repo: https://github.com/PyCQA/flake8
+  rev: 6.1.0
+  hooks:
+  - id: flake8
+    args: [--config=.flake8]
+
+
