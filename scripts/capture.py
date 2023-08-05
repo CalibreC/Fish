@@ -18,10 +18,11 @@ import win32ui
 from loguru import logger
 from PIL import Image
 
-# window_name = "原神"
-window_name = "Notepad"
-capture_method = "win32api"
-# capture_method = "dxcam"
+window_name = "原神"
+# window_name = "向日葵远程控制"
+# window_name = "Notepad"
+# capture_method = "win32api"
+capture_method = "dxcam"
 
 # def capture_image():
 #     camera = dxcam.create(output_color="BGRA")
@@ -54,8 +55,13 @@ def get_window_info():
 
     :return: 窗口句柄，左上角坐标，右下角坐标
     """
-    # hwnd = win32gui.FindWindow(None, window_name)
-    hwnd = win32gui.FindWindow(window_name, None)
+    # FindWindow(class-name, window-name)
+    # hwnd = win32gui.FindWindow(window_name, None)
+    hwnd = win32gui.FindWindow(None, window_name)
+    if hwnd is None:
+        logger.error("未找到窗口")
+        sys.exit(1)
+
     # 如果使用高 DPI 显示器（或 > 100% 缩放尺寸），添加下面一行，否则注释掉
     windll.user32.SetProcessDPIAware()
 
@@ -131,8 +137,12 @@ def win32api_capture():
 
     saveDC.SelectObject(saveBitMap)  # 高度saveDC，将截图保存到saveBitmap中
 
+    # win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST,
+    # 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
     # 选择合适的 window number，如0，1，2，3，直到截图从黑色变为正常画面
-    result = windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 3)
+    result = windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 2)
+    # win32gui.SetWindowPos(hwnd, win32con.HWND_NOTOPMOST,
+    # 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
 
     bmpinfo = saveBitMap.GetInfo()
     bmpstr = saveBitMap.GetBitmapBits(True)
@@ -152,13 +162,13 @@ def win32api_capture():
     mfcDC.DeleteDC()
     win32gui.ReleaseDC(hwnd, hwndDC)
 
-    if result == 1:
-        # PrintWindow Succeeded
-        # im.save("test.png")  # 调试时可打开，不保存图片可节省大量时间（约0.2s）
-        return im  # 返回图片
-    else:
-        logger.error("截图失败")
-        return None
+    # if result == 1:
+    # PrintWindow Succeeded
+    # im.save("test.png")  # 调试时可打开，不保存图片可节省大量时间（约0.2s）
+    return im  # 返回图片
+    # else:
+    #     logger.error("截图失败")
+    #     return None
 
 
 def video_capture():
@@ -186,14 +196,17 @@ def video_capture():
 
 
 def make_parser():
-    parser = argparse.ArgumentParser("Genshin Fishing")
-    parser.add_argument("--mode", default="genshin", type=str, help="train or test")
+    parser = argparse.ArgumentParser("Capture")
+    parser.add_argument("--name", default="原神", type=str, help="选择合适的")
+    parser.add_argument(
+        "--capture_method", default="dxcam", type=str, help="train or test"
+    )
     return parser
 
 
 if __name__ == "__main__":
     logger.remove()  # 删除自动产生的handler
-    handle_id = logger.add(sys.stderr, level="WARNING")  # 添加一个可以修改控制的handler
+    handle_id = logger.add(sys.stderr, level="INFO")  # 添加一个可以修改控制的handler
     args = make_parser().parse_args()
     # 模型初始化
 
