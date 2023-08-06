@@ -9,13 +9,13 @@ line-length = 88
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
   | _build
+  | weights
   | buck-out
+  | yolo5
   | build
   | dist
+  | venv
 )/
 '''
 

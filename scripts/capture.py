@@ -18,6 +18,7 @@ import win32ui
 from loguru import logger
 from PIL import Image
 
+# window_name = "崩坏：星穹铁道"
 window_name = "原神"
 # window_name = "向日葵远程控制"
 # window_name = "Notepad"
@@ -57,7 +58,7 @@ def get_window_info():
     """
     # FindWindow(class-name, window-name)
     # hwnd = win32gui.FindWindow(window_name, None)
-    hwnd = win32gui.FindWindow(None, window_name)
+    hwnd = win32gui.FindWindow("UnityWndClass", window_name)
     if hwnd is None:
         logger.error("未找到窗口")
         sys.exit(1)
@@ -206,8 +207,7 @@ def make_parser():
 
 if __name__ == "__main__":
     logger.remove()  # 删除自动产生的handler
-    handle_id = logger.add(sys.stderr, level="INFO")  # 添加一个可以修改控制的handler
+    handle_id = logger.add(sys.stderr, level="WARNING")  # 添加一个可以修改控制的handler
     args = make_parser().parse_args()
-    # 模型初始化
 
     video_capture()
