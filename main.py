@@ -14,9 +14,9 @@ import numpy as np
 from loguru import logger
 
 from capture import Capture
-from preprocess import preprocess
-from postprocess import postprocess, non_max_suppression
 from load_model import load_model
+from postprocess import non_max_suppression, postprocess
+from preprocess import preprocess
 
 
 def make_parser():
