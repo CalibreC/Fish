@@ -43,8 +43,8 @@ class Capture:
     def _calc_client_rect(self):
         window_width = self.window_rect[2] - self.window_rect[0]
         window_height = self.window_rect[3] - self.window_rect[1]
-        client_width = self.client[2] - self.client[0]
-        client_height = self.client[3] - self.client[1]
+        client_width = self.client_rect[2] - self.client_rect[0]
+        client_height = self.client_rect[3] - self.client_rect[1]
         align = (window_width - client_width) / 2
         left = int(self.window_rect[0] + align)
         right = int(self.window_rect[2] - align)

@@ -2,7 +2,7 @@ import torch
 
 
 def load_model(
-    device="0",
+    device="cuda:0",
     weights=".\\weights\\2023-08-07.pt",
 ):
     ckpt = torch.load(weights, map_location=device)  # load
