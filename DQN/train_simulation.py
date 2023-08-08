@@ -12,6 +12,8 @@ import torch
 from agent import DQN
 from environment import *
 from fish_net import FishNet
+from render import  *
+
 
 # from utils.render import *
 
@@ -23,7 +25,7 @@ parser.add_argument("--n_states", default=3, type=int)
 parser.add_argument("--n_actions", default=2, type=int)
 parser.add_argument("--step_tick", default=12, type=int)
 parser.add_argument("--n_episode", default=400, type=int)
-parser.add_argument("--save_dir", default="./output", type=str)
+parser.add_argument("--save_dir", default=".\DQN\output", type=str)
 parser.add_argument("--resume", default=None, type=str)
 args = parser.parse_args()
 
@@ -36,7 +38,7 @@ if args.resume:
 
 agent = DQN(net, args.batch_size, args.n_states, args.n_actions, memory_capacity=2000)
 # env = Fishing_sim(step_tick=args.step_tick, drawer=PltRender())
-env = Fishing_simulator(step_tick=args.step_tick)
+env = Fishing_simulator(step_tick=args.step_tick, drawer=PltRender())
 
 if __name__ == "__main__":
     # Start training
@@ -49,7 +51,7 @@ if __name__ == "__main__":
         ep_r = 0
         while True:
             # 200次训练之后，每20次渲染一次
-            if i_episode > 200 and i_episode % 20 == 0:
+            if i_episode > 100 and i_episode % 20 == 0:
                 env.render()
             # take action based on the current state
             action = agent.choose_action(state)
