@@ -11,8 +11,7 @@ import os
 import torch
 from agent import DQN
 from environment import *
-
-from models import FishNet
+from fish_net import FishNet
 
 # from utils.render import *
 

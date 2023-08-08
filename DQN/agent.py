@@ -71,9 +71,7 @@ class DQN:
 
     def store_transition(self, s, a, r, s_, done):
         # This function acts as experience replay buffer
-        transition = np.hstack(
-            (s, [a, r], s_, done)
-        )  # horizontally stack these vectors
+        transition = np.hstack((s, a, r, s_, done))  # horizontally stack these vectors
         # if the capacity is full, then use index to replace the old memory with new one
         index = self.memory_counter % self.memory_capacity
         self.memory[index, :] = transition

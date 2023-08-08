@@ -23,6 +23,15 @@ class Fishing_simulator(object):
         stable_speed=-0.32,
         drawer=None,
     ):
+        self.ticks = None
+        self.score = None
+        self.move_speed = None
+        self.move_tick = None
+        self.resize_tick = None
+        self.v = None
+        self.pointer = None
+        self.low = None
+        self.len = None
         self.bar_range = bar_range
         self.move_range = move_range
         self.resize_freq_range = resize_freq_range
@@ -43,9 +52,9 @@ class Fishing_simulator(object):
         self.reset()
 
     def reset(self):
-        self.len = np.random.uniform(*self.bar_range)
-        self.low = np.random.uniform(0, 1 - self.len)
-        self.pointer = np.random.uniform(0, 1)
+        self.len = np.random.uniform(*self.bar_range)  # 目标区间长度
+        self.low = np.random.uniform(0, 1 - self.len)  # 左边界
+        self.pointer = np.random.uniform(0, 1)  # 目标位置
         self.v = 0
 
         self.resize_tick = 0
@@ -55,7 +64,8 @@ class Fishing_simulator(object):
         self.score = 100
         self.ticks = 0
 
-        return (self.low, self.low + self.len, self.pointer)
+        # 左边界，右边界，目标位置
+        return self.low, self.low + self.len, self.pointer
 
     def drag(self):
         self.v = self.drag_force
