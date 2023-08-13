@@ -12,20 +12,19 @@ import torch
 from agent import DQN
 from environment import *
 from fish_net import FishNet
-from render import  *
-
+from render import *
 
 # from utils.render import *
 
 parser = argparse.ArgumentParser(
-    description="Train Genshin finsing simulation with DQN"
+    description="Train Genshin fishing simulation with DQN"
 )
 parser.add_argument("--batch_size", default=32, type=int)
 parser.add_argument("--n_states", default=3, type=int)
 parser.add_argument("--n_actions", default=2, type=int)
 parser.add_argument("--step_tick", default=12, type=int)
 parser.add_argument("--n_episode", default=400, type=int)
-parser.add_argument("--save_dir", default=".\DQN\output", type=str)
+parser.add_argument("--save_dir", default=".\\DQN\\output", type=str)
 parser.add_argument("--resume", default=None, type=str)
 args = parser.parse_args()
 

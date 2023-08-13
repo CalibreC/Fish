@@ -20,11 +20,11 @@ cd Fish
 ## 安装依赖
 ```bash
 python -m pip install -U pip
-python requirements.py
+pip install -r requirements.py
 ```
 
 ## 运行
-运行时，请以管理员权限运行脚本，否则无法截图。
+
 
 # Goals
 
@@ -33,8 +33,8 @@ python requirements.py
   - [x] dxcam
   - [ ] win32gui
 - [x] 实时识别鱼群
-- [ ] DQN训练
-  - [ ] 模拟训练
+- [x] DQN训练
+  - [x] 模拟训练
   - [ ] 游戏训练
 - [ ] 数据集拓展
 - [ ] 钓鱼
@@ -43,6 +43,11 @@ python requirements.py
 ## DQN模拟训练
 ```python
 python .\DQN\train_simulation.py
+```
+
+## DQN游戏训练
+```python
+python .\DQN\train_genshin.py
 ```
 ### 原项目
 

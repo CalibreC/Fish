@@ -19,6 +19,11 @@ from postprocess import non_max_suppression, postprocess
 from preprocess import preprocess
 
 
+def logger_setting():
+    logger.remove()  # 删除自动产生的handler
+    handle_id = logger.add(sys.stderr, level="WARNING")  # 添加一个可以修改控制的handler
+
+
 def make_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -52,8 +57,7 @@ def make_parser():
 
 
 if __name__ == "__main__":
-    logger.remove()  # 删除自动产生的handler
-    handle_id = logger.add(sys.stderr, level="WARNING")  # 添加一个可以修改控制的handler
+    logger_setting()
     args = make_parser().parse_args()
 
     DirectX = Capture(

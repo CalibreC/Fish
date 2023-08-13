@@ -2,6 +2,7 @@ import time
 
 import cv2
 import dxcam
+import keyboard
 import numpy as np
 
 # region = (208, 235, 2560-208, 1440-235)
@@ -20,7 +21,7 @@ def screenshot():
     # camera = dxcam.create()  # returns a DXCamera instance on primary monitor
     camera = dxcam.create(output_color="BGRA")
 
-    frame = camera.grab(region=region)
+    frame = camera.grab()
     # frame = camera.grab()
     # Image.fromarray(frame).show()
 
@@ -28,7 +29,7 @@ def screenshot():
     Opencv需要反转颜色,dxcam.create时设置output_color="BGRA"后不需要反转
     """
     cv2.imshow("test.png", frame)
-    # cv2.imwrite('test.png', frame)
+    cv2.imwrite("test.png", frame)
     cv2.waitKey(0)
 
     del camera
@@ -127,6 +128,7 @@ def grab_screen_dxcam():
 if __name__ == "__main__":
     # print(dxcam.device_info())
     # print(dxcam.output_info())
+    keyboard.wait("r")
     screenshot()
     # screen_capture()
     # multiple_monitors()
