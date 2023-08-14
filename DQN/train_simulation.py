@@ -37,7 +37,7 @@ if args.resume:
 
 agent = DQN(net, args.batch_size, args.n_states, args.n_actions, memory_capacity=2000)
 # env = Fishing_sim(step_tick=args.step_tick, drawer=PltRender())
-env = Fishing_simulator(step_tick=args.step_tick, drawer=PltRender())
+env = FishingSimulator(step_tick=args.step_tick, drawer=PltRender())
 
 if __name__ == "__main__":
     # Start training

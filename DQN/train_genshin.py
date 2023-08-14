@@ -8,15 +8,15 @@
 import argparse
 import os
 import sys
-import winsound
 
-import keyboard
 import torch
+
 from agent import DQN
 from environment import Fishing
 from fish_net import FishNet
 from loguru import logger
-
+from ..capture import Capture
+from ..window import Window
 
 def logger_setting():
     logger.remove()  # 删除自动产生的handler
@@ -39,6 +39,11 @@ if __name__ == "__main__":
     logger_setting()
     args = make_parser().parse_args()
 
+    Genshin = Window(class_name="UnityWndClass", window_name="原神")
+    DirectX = Capture(
+        window=Genshin, capture_method="dxcam"
+    )
+
     net = FishNet(in_ch=args.n_states, out_ch=args.n_actions)
     if args.resume:
         net.load_state_dict(torch.load(args.resume))
@@ -46,7 +51,7 @@ if __name__ == "__main__":
     agent = DQN(
         net, args.batch_size, args.n_states, args.n_actions, memory_capacity=1000
     )
-    env = Fishing(delay=0.1, max_step=150)
+    env = Fishing(delay=0.1, max_step=150, capture_method=DirectX)
 
     # Start training
     print("\nCollecting experience...")

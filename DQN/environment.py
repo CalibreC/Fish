@@ -7,25 +7,28 @@
 # @Description      :
 import time
 
+import cv2
 import numpy as np
 
+from DQN.utils import get_valid_region, match_image
 from utils import *
+from operation import *
 
 
-class Fishing_simulator(object):
+class FishingSimulator(object):
     def __init__(
-        self,
-        bar_range=(0.18, 0.4),  # 区间长度变化范围
-        move_range=(30, 60 * 2),  # 区间移动范围
-        resize_freq_range=(15, 60 * 5),
-        move_speed_range=(-0.3, 0.3),  # 15个时间计数内，区间移动范围
-        tick_count=60,
-        step_tick=15,  # 要求连续15个时间计数内，指针在目标区间内
-        stop_tick=60 * 15,  # 60*15个时间计数后，one epoch模拟结束
-        drag_force=0.4,  # 按下鼠标后，15个时间计数内，指针产生的位移
-        down_speed=0.015,  # 15个时间计数内，自动衰减速度
-        stable_speed=-0.32,
-        drawer=None,
+            self,
+            bar_range=(0.18, 0.4),  # 区间长度变化范围
+            move_range=(30, 60 * 2),  # 区间移动范围
+            resize_freq_range=(15, 60 * 5),
+            move_speed_range=(-0.3, 0.3),  # 15个时间计数内，区间移动范围
+            tick_count=60,
+            step_tick=15,  # 要求连续15个时间计数内，指针在目标区间内
+            stop_tick=60 * 15,  # 60*15个时间计数后，one epoch模拟结束
+            drag_force=0.4,  # 按下鼠标后，15个时间计数内，指针产生的位移
+            down_speed=0.015,  # 15个时间计数内，自动衰减速度
+            stable_speed=-0.32,
+            drawer=None,
     ):
         self.ticks = None
         self.score = None
@@ -130,13 +133,15 @@ class Fishing_simulator(object):
 
 
 class Fishing:
-    def __init__(self, delay=0.1, max_step=100, show_det=True):
+    def __init__(self, delay=0.1, max_step=100, capture_method=None):
         self.last_score = None
         self.reward = None
         self.zero_count = None
         self.fish_start = None  # 是否开始钓鱼
         self.step_count = None
         self.image = None  # 包含钓鱼进度条
+
+        # reading images
         self.full_image = cv2.imread("./imgs/test/test.jpg")
         self.t_l = cv2.imread("./imgs/target_left.png")
         self.t_r = cv2.imread("./imgs/target_right.png")
@@ -149,13 +154,18 @@ class Fishing:
         self.delay = delay
         self.max_step = max_step
         self.count = 0
-        self.show_det = show_det
 
         self.add_vec = [0, 2, 0, 2, 0, 2]
 
         # score
         self.r_ring = 21
         self.std_color = np.array([192, 255, 255])
+
+        # camera
+        self.camera = capture_method
+
+        # mouse, keyboard
+        self.mouse = MouseOperation(self.camera.window)
 
     def reset(self):
         self.image = get_valid_region(self.full_image, None)
@@ -180,8 +190,8 @@ class Fishing:
 
         time.sleep(self.delay)
 
-        # TODO: 捕获图像
-        self.image = get_valid_region(self.full_image, None)
+        # 默认1080p
+        self.image = get_valid_region(self.camera.capture(), None)
         self.step_count += 1
 
         score = self._get_score()
@@ -198,14 +208,15 @@ class Fishing:
             self._get_status(),
             self.reward,
             (
-                self.step_count > self.max_step
-                or (self.zero_count >= 15 and self.fish_start)
-                or score > 176
+                    self.step_count > self.max_step
+                    or (self.zero_count >= 15 and self.fish_start)
+                    or score > 176
             ),
         )
 
     def _do_action(self, action):
-        pass
+        if action == 1:
+            self._drag()
 
     def _get_score(self):
         """
@@ -218,3 +229,6 @@ class Fishing:
             if np.mean(np.abs(self.image[py, px, :] - self.std_color)) > 5:
                 return x // 2 - 2
         return 360 // 2 - 2
+
+    def _drag(self):
+        self.mouse.rel_click(1630, 995)

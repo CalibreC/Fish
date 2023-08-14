@@ -17,7 +17,7 @@ from capture import Capture
 from load_model import load_model
 from postprocess import non_max_suppression, postprocess
 from preprocess import preprocess
-
+from window import Window
 
 def logger_setting():
     logger.remove()  # 删除自动产生的handler
@@ -60,8 +60,9 @@ if __name__ == "__main__":
     logger_setting()
     args = make_parser().parse_args()
 
+    Genshin = Window(class_name="UnityWndClass", window_name=args.name)
     DirectX = Capture(
-        class_name="UnityWndClass", window_name="原神", capture_method="dxcam"
+        window=Genshin, capture_method="dxcam"
     )
 
     model, class_names = load_model()

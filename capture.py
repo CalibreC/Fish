@@ -9,21 +9,13 @@ import win32gui
 import win32ui
 from loguru import logger
 from PIL.Image import Image
-
+from window import Window
 
 class Capture:
     def __init__(
-        self, class_name="UnityWndClass", window_name="原神", capture_method="win32api"
+            self, window, capture_method="win32api"
     ):
-        self.window_name = window_name
-        self.class_name = class_name
-        self.hwnd = win32gui.FindWindow(self.class_name, self.window_name)
-        if self.hwnd is None:
-            logger.error("未找到窗口")
-            sys.exit(1)
-
-        self.window_rect = None
-        self.client_rect = None
+        self.window = window
 
         self.capture_method = capture_method
         if self.capture_method == "dxcam":
@@ -40,46 +32,8 @@ class Capture:
             logger.error("未知的截图方式")
             sys.exit(1)
 
-    def _calc_client_rect(self):
-        window_width = self.window_rect[2] - self.window_rect[0]
-        window_height = self.window_rect[3] - self.window_rect[1]
-        client_width = self.client_rect[2] - self.client_rect[0]
-        client_height = self.client_rect[3] - self.client_rect[1]
-        align = (window_width - client_width) / 2
-        left = int(self.window_rect[0] + align)
-        right = int(self.window_rect[2] - align)
-        bot = int(self.window_rect[3] - align)
-        top_align = window_height - client_height - align
-        top = int(self.window_rect[1] + top_align)
-
-        return left, top, right, bot
-
-    def get_window_info(self):
-        """
-
-        :return: 窗口句柄，左上角坐标，右下角坐标
-        """
-        # 如果使用高 DPI 显示器（或 > 100% 缩放尺寸），添加下面一行，否则注释掉
-        windll.user32.SetProcessDPIAware()
-
-        # 根据您是想要整个窗口还是只需要 client area 来更改下面的行。
-        self.client_rect = win32gui.GetClientRect(self.hwnd)
-        logger.info(f"client: {self.client_rect}")
-        self.window_rect = win32gui.GetWindowRect(self.hwnd)
-        logger.info(f"window_rect: {self.window_rect}")
-
-        if self.capture_method == "win32api":
-            left, top, right, bot = self.client_rect
-        elif self.capture_method == "dxcam":
-            left, top, right, bot = self._calc_client_rect()
-        else:
-            raise ValueError("capture_method should be win32api or dxcam")
-
-        logger.info(f"left: {left}, top: {top}, right: {right}, bot: {bot}")
-        return left, top, right, bot
-
     def _dxcam_capture(self):
-        (left, top, right, bot) = self.get_window_info()
+        (left, top, right, bot) = self.window.get_window_info(self.capture_method)
 
         im = self.camera.grab(region=(left, top, right, bot))
 
@@ -92,12 +46,12 @@ class Capture:
             return None
 
     def _win32api_capture(self):
-        hwnd, (left, top, right, bot) = Capture.get_window_info()
+        left, top, right, bot = self.window.get_window_info(self.capture_method)
 
         w = right - left
         h = bot - top
 
-        hwndDC = win32gui.GetWindowDC(hwnd)  # 根据窗口句柄获取窗口的设备上下文DC（Divice Context）
+        hwndDC = win32gui.GetWindowDC(self.window.hwnd)  # 根据窗口句柄获取窗口的设备上下文DC（Divice Context）
         mfcDC = win32ui.CreateDCFromHandle(hwndDC)  # 根据窗口的DC获取mfcDC
         saveDC = mfcDC.CreateCompatibleDC()  # mfcDC创建可兼容的DC
 
@@ -106,11 +60,11 @@ class Capture:
 
         saveDC.SelectObject(saveBitMap)  # 高度saveDC，将截图保存到saveBitmap中
 
-        # win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST,
+        # win32gui.SetWindowPos(self.window.hwnd, win32con.HWND_TOPMOST,
         # 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
         # 选择合适的 window number，如0，1，2，3，直到截图从黑色变为正常画面
-        result = windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 2)
-        # win32gui.SetWindowPos(hwnd, win32con.HWND_NOTOPMOST,
+        result = windll.user32.PrintWindow(self.window.hwnd, saveDC.GetSafeHdc(), 2)
+        # win32gui.SetWindowPos(self.window.hwnd, win32con.HWND_NOTOPMOST,
         # 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
 
         bmpinfo = saveBitMap.GetInfo()
@@ -129,7 +83,7 @@ class Capture:
         win32gui.DeleteObject(saveBitMap.GetHandle())
         saveDC.DeleteDC()
         mfcDC.DeleteDC()
-        win32gui.ReleaseDC(hwnd, hwndDC)
+        win32gui.ReleaseDC(self.window.hwnd, hwndDC)
 
         # if result == 1:
         # PrintWindow Succeeded
