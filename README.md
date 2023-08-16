@@ -38,6 +38,7 @@ pip install -r requirements.py
   - [ ] 游戏训练
 - [ ] 数据集拓展
 - [ ] 钓鱼
+- [ ] PyQt5 GUI
 
 # 训练
 ## DQN模拟训练
