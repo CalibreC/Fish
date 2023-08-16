@@ -6,29 +6,30 @@
 # @File             : environment.py
 # @Description      :
 import time
+from copy import deepcopy
 
 import cv2
 import numpy as np
 
+from DQN.operation import *
 from DQN.utils import get_valid_region, match_image
 from utils import *
-from operation import *
 
 
 class FishingSimulator(object):
     def __init__(
-            self,
-            bar_range=(0.18, 0.4),  # 区间长度变化范围
-            move_range=(30, 60 * 2),  # 区间移动范围
-            resize_freq_range=(15, 60 * 5),
-            move_speed_range=(-0.3, 0.3),  # 15个时间计数内，区间移动范围
-            tick_count=60,
-            step_tick=15,  # 要求连续15个时间计数内，指针在目标区间内
-            stop_tick=60 * 15,  # 60*15个时间计数后，one epoch模拟结束
-            drag_force=0.4,  # 按下鼠标后，15个时间计数内，指针产生的位移
-            down_speed=0.015,  # 15个时间计数内，自动衰减速度
-            stable_speed=-0.32,
-            drawer=None,
+        self,
+        bar_range=(0.18, 0.4),  # 区间长度变化范围
+        move_range=(30, 60 * 2),  # 区间移动范围
+        resize_freq_range=(15, 60 * 5),
+        move_speed_range=(-0.3, 0.3),  # 15个时间计数内，区间移动范围
+        tick_count=60,
+        step_tick=15,  # 要求连续15个时间计数内，指针在目标区间内
+        stop_tick=60 * 15,  # 60*15个时间计数后，one epoch模拟结束
+        drag_force=0.4,  # 按下鼠标后，15个时间计数内，指针产生的位移
+        down_speed=0.015,  # 15个时间计数内，自动衰减速度
+        stable_speed=-0.32,
+        drawer=None,
     ):
         self.ticks = None
         self.score = None
@@ -133,13 +134,17 @@ class FishingSimulator(object):
 
 
 class Fishing:
-    def __init__(self, delay=0.1, max_step=100, capture_method=None):
-        self.last_score = None
-        self.reward = None
-        self.zero_count = None
-        self.fish_start = None  # 是否开始钓鱼
-        self.step_count = None
+    def __init__(
+        self, delay=0.1, max_step=100, capture_method=None, show_detection=False
+    ):
+        self.last_score = 0
+        self.reward = 0
+        self.zero_count = 0
+        self.fish_start = False  # 是否开始钓鱼
+        self.step_count = 0
         self.image = None  # 包含钓鱼进度条
+
+        self.show_detection = show_detection
 
         # reading images
         self.full_image = cv2.imread("./imgs/test/test.jpg")
@@ -155,6 +160,7 @@ class Fishing:
         self.max_step = max_step
         self.count = 0
 
+        # state
         self.add_vec = [0, 2, 0, 2, 0, 2]
 
         # score
@@ -168,19 +174,63 @@ class Fishing:
         self.mouse = MouseOperation(self.camera.window)
 
     def reset(self):
+        # TODO: 重置钓鱼进度条
         self.image = get_valid_region(self.full_image, None)
 
         return self._get_status()
 
+    def _list_add(self, li, num):
+        return [x + y for x, y in zip(li, num)]
+
+    def _scale(self, x):
+        # 484是整个进度条的长度，可以参考imgs里 16.jpg 500.jpg
+        return (x - 5 - 10) / 484  # 5是左边界，10是左边界到第一个刻度的距离
+
     def _get_status(self):
+        # TODO: 从钓鱼进度条中获取状态
+        # bar_image.shape 32, 516, 3
         bar_image = self.image[2:34, :, :]
+
         bbox_l = match_image(bar_image, self.t_l)
         bbox_r = match_image(bar_image, self.t_r)
         bbox_n = match_image(bar_image, self.t_n)
 
+        bbox_l = tuple(self._list_add(bbox_l, self.add_vec))
+        bbox_r = tuple(self._list_add(bbox_r, self.add_vec))
+        bbox_n = tuple(self._list_add(bbox_n, self.add_vec))
+
+        if self.show_detection:
+            img = deepcopy(bar_image)
+            cv2.rectangle(img, bbox_l[:2], bbox_l[2:4], (255, 0, 0), 1)  # 画出矩形位置
+            cv2.rectangle(img, bbox_r[:2], bbox_r[2:4], (0, 255, 0), 1)  # 画出矩形位置
+            cv2.rectangle(img, bbox_n[:2], bbox_n[2:4], (0, 0, 255), 1)  # 画出矩形位置
+            font_face = cv2.FONT_HERSHEY_COMPLEX_SMALL
+            font_scale = 1
+            thickness = 1
+            cv2.putText(
+                img,
+                str(self.last_score),
+                (257 + 30, 72),
+                fontScale=font_scale,
+                fontFace=font_face,
+                thickness=thickness,
+                color=(0, 255, 255),
+            )
+            cv2.putText(
+                img,
+                str(self.reward),
+                (257 + 30, 87),
+                fontScale=font_scale,
+                fontFace=font_face,
+                thickness=thickness,
+                color=(255, 255, 0),
+            )
+            cv2.imwrite(f"./img_tmp/{self.count}.jpg", img)
+
         self.count += 1
 
-        return bbox_l, bbox_r, bbox_n
+        # 归一化
+        return self._scale(bbox_l[4]), self._scale(bbox_r[4]), self._scale(bbox_n[4])
 
     def render(self):
         pass
@@ -191,7 +241,9 @@ class Fishing:
         time.sleep(self.delay)
 
         # 默认1080p
-        self.image = get_valid_region(self.camera.capture(), None)
+        image = self.camera.capture()
+        image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
+        self.image = get_valid_region(image, None)
         self.step_count += 1
 
         score = self._get_score()
@@ -208,9 +260,9 @@ class Fishing:
             self._get_status(),
             self.reward,
             (
-                    self.step_count > self.max_step
-                    or (self.zero_count >= 15 and self.fish_start)
-                    or score > 176
+                self.step_count > self.max_step
+                or (self.zero_count >= 15 and self.fish_start)
+                or score > 176
             ),
         )
 

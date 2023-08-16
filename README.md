@@ -36,6 +36,9 @@ pip install -r requirements.py
 - [x] DQN训练
   - [x] 模拟训练
   - [ ] 游戏训练
+    - [x] 训练流程
+    - [x] 按键点击
+    - [ ] dxcam截图失败
 - [ ] 数据集拓展
 - [ ] 钓鱼
 - [ ] PyQt5 GUI

@@ -9,12 +9,12 @@ import win32gui
 import win32ui
 from loguru import logger
 from PIL.Image import Image
+
 from window import Window
 
+
 class Capture:
-    def __init__(
-            self, window, capture_method="win32api"
-    ):
+    def __init__(self, window, capture_method="win32api"):
         self.window = window
 
         self.capture_method = capture_method
@@ -51,7 +51,9 @@ class Capture:
         w = right - left
         h = bot - top
 
-        hwndDC = win32gui.GetWindowDC(self.window.hwnd)  # 根据窗口句柄获取窗口的设备上下文DC（Divice Context）
+        hwndDC = win32gui.GetWindowDC(
+            self.window.hwnd
+        )  # 根据窗口句柄获取窗口的设备上下文DC（Divice Context）
         mfcDC = win32ui.CreateDCFromHandle(hwndDC)  # 根据窗口的DC获取mfcDC
         saveDC = mfcDC.CreateCompatibleDC()  # mfcDC创建可兼容的DC
 

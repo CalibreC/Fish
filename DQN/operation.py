@@ -2,6 +2,7 @@ import time
 
 import win32api
 import win32con
+
 from window import Window
 
 
@@ -65,7 +66,7 @@ class KeyboardOperation:
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Genshin = Window(class_name="UnityWndClass", window_name="原神")
     window = Window(class_name=None, window_name="向日葵远程控制")
     mouse = MouseOperation(window)

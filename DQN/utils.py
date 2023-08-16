@@ -6,12 +6,12 @@
 # @File             : utils.py
 # @Description      :
 import cv2
+import numpy as np
 
 
 # 获取有效区域
 def get_valid_region(full_image=None, region=None):
-    bar_template = cv2.imread("../imgs/bar_template.png")
-
+    bar_template = cv2.imread("./imgs/bar_template.png")
     bar_y_pos = find_bar_y_pos(full_image, bar_template)
     left = 712 - 10
     top = bar_y_pos
@@ -39,8 +39,8 @@ def match_image(image, target, method=cv2.TM_CCOEFF):
     return (
         *top_left,
         *bottom_right,
-        # top_left[0] + w // 2,   # center
-        # top_left[1] + h // 2
+        top_left[0] + w // 2,  # center
+        top_left[1] + h // 2,
     )
 
 

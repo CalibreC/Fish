@@ -9,14 +9,16 @@ import argparse
 import os
 import sys
 
+import keyboard
 import torch
-
-from agent import DQN
-from environment import Fishing
-from fish_net import FishNet
 from loguru import logger
-from ..capture import Capture
-from ..window import Window
+
+from capture import Capture
+from DQN.agent import DQN
+from DQN.environment import Fishing
+from DQN.fish_net import FishNet
+from window import Window
+
 
 def logger_setting():
     logger.remove()  # 删除自动产生的handler
@@ -31,7 +33,9 @@ def make_parser():
     parser.add_argument("--step_tick", default=12, type=int)
     parser.add_argument("--n_episode", default=400, type=int)
     parser.add_argument("--save_dir", default="./output", type=str)
-    parser.add_argument("--resume", default="./output/fish_sim_net_399.pth", type=str)
+    parser.add_argument(
+        "--resume", default="./DQN/output/fish_sim_net_399.pth", type=str
+    )
     return parser
 
 
@@ -40,9 +44,7 @@ if __name__ == "__main__":
     args = make_parser().parse_args()
 
     Genshin = Window(class_name="UnityWndClass", window_name="原神")
-    DirectX = Capture(
-        window=Genshin, capture_method="dxcam"
-    )
+    DirectX = Capture(window=Genshin, capture_method="dxcam")
 
     net = FishNet(in_ch=args.n_states, out_ch=args.n_actions)
     if args.resume:
@@ -56,6 +58,8 @@ if __name__ == "__main__":
     # Start training
     print("\nCollecting experience...")
     net.train()
+
+    keyboard.wait("r")
 
     for i_episode in range(args.n_episode):
         state = env.reset()
