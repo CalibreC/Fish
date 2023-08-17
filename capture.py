@@ -8,7 +8,7 @@ import numpy as np
 import win32gui
 import win32ui
 from loguru import logger
-from PIL.Image import Image
+from PIL import Image
 
 from window import Window
 
@@ -65,7 +65,7 @@ class Capture:
         # win32gui.SetWindowPos(self.window.hwnd, win32con.HWND_TOPMOST,
         # 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
         # 选择合适的 window number，如0，1，2，3，直到截图从黑色变为正常画面
-        result = windll.user32.PrintWindow(self.window.hwnd, saveDC.GetSafeHdc(), 2)
+        result = windll.user32.PrintWindow(self.window.hwnd, saveDC.GetSafeHdc(), 3)
         # win32gui.SetWindowPos(self.window.hwnd, win32con.HWND_NOTOPMOST,
         # 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
 
@@ -90,7 +90,8 @@ class Capture:
         # if result == 1:
         # PrintWindow Succeeded
         # im.save("test.png")  # 调试时可打开，不保存图片可节省大量时间（约0.2s）
-        return im  # 返回图片
+        image = cv2.cvtColor(np.asarray(im), cv2.COLOR_BGRA2RGBA)
+        return image  # 返回图片
         # else:
         #     logger.error("截图失败")
         #     return None

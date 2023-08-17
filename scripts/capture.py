@@ -12,8 +12,12 @@ from ctypes import windll
 
 import cv2
 import dxcam
+import keyboard
 import numpy as np
+import win32api
+import win32con
 import win32gui
+import win32print
 import win32ui
 from loguru import logger
 from PIL import Image
@@ -22,8 +26,8 @@ from PIL import Image
 window_name = "原神"
 # window_name = "向日葵远程控制"
 # window_name = "Notepad"
-# capture_method = "win32api"
-capture_method = "dxcam"
+capture_method = "win32api"
+# capture_method = "dxcam"
 
 # def capture_image():
 #     camera = dxcam.create(output_color="BGRA")
@@ -141,7 +145,7 @@ def win32api_capture():
     # win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST,
     # 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
     # 选择合适的 window number，如0，1，2，3，直到截图从黑色变为正常画面
-    result = windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 2)
+    result = windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 3)
     # win32gui.SetWindowPos(hwnd, win32con.HWND_NOTOPMOST,
     # 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
 
@@ -166,7 +170,8 @@ def win32api_capture():
     # if result == 1:
     # PrintWindow Succeeded
     # im.save("test.png")  # 调试时可打开，不保存图片可节省大量时间（约0.2s）
-    return im  # 返回图片
+    image = cv2.cvtColor(np.asarray(im), cv2.COLOR_RGB2BGR)
+    return image  # 返回图片
     # else:
     #     logger.error("截图失败")
     #     return None
@@ -209,5 +214,8 @@ if __name__ == "__main__":
     logger.remove()  # 删除自动产生的handler
     handle_id = logger.add(sys.stderr, level="WARNING")  # 添加一个可以修改控制的handler
     args = make_parser().parse_args()
+
+    print("Press 'r' to start capturing.")
+    keyboard.wait("r")
 
     video_capture()

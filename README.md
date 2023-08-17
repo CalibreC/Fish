@@ -24,6 +24,9 @@ pip install -r requirements.py
 ```
 
 ## 运行
+1.游戏本体不能最小化 \
+2.选择dxcam，win32gui中的一种截图方式， \
+3.运行win32gui需要管理员权限，否则会报错；运行dxcam需要将本体前置，放到所有窗口最前方
 
 
 # Goals
@@ -31,7 +34,9 @@ pip install -r requirements.py
 - [x] 模型训练
 - [x] 高速截图
   - [x] dxcam
-  - [ ] win32gui
+  - [x] win32gui
+  
+  dxcam截图30fps左右，但是有时会截图失败；win32gui稳定，但是帧数低15fps左右
 - [x] 实时识别鱼群
 - [x] DQN训练
   - [x] 模拟训练
@@ -46,12 +51,12 @@ pip install -r requirements.py
 # 训练
 ## DQN模拟训练
 ```python
-python .\DQN\train_simulation.py
+python .\\DQN\\train_simulation.py
 ```
 
 ## DQN游戏训练
 ```python
-python .\DQN\train_genshin.py
+python .\\DQN\\train_genshin.py
 ```
 ### 原项目
 

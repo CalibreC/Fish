@@ -233,6 +233,8 @@ class Fishing:
         return self._scale(bbox_l[4]), self._scale(bbox_r[4]), self._scale(bbox_n[4])
 
     def render(self):
+        cv2.imshow("image", self.image)
+        cv2.waitKey(1)
         pass
 
     def step(self, action):
@@ -268,7 +270,8 @@ class Fishing:
 
     def _do_action(self, action):
         if action == 1:
-            self._drag()
+            # self._drag()
+            pass
 
     def _get_score(self):
         """

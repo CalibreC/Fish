@@ -8,6 +8,7 @@
 import argparse
 import os
 import sys
+import winsound
 
 import keyboard
 import torch
@@ -59,14 +60,17 @@ if __name__ == "__main__":
     print("\nCollecting experience...")
     net.train()
 
+    print("Press 'r' to start training.")
+    winsound.Beep(500, 500)
     keyboard.wait("r")
 
     for i_episode in range(args.n_episode):
         state = env.reset()
         ep_r = 0
         while True:
-            if i_episode > 200 and i_episode % 20 == 0:
-                env.render()
+            # if i_episode > 200 and i_episode % 20 == 0:
+            env.render()
+            print("state: ", state)
             # take action based on the current state
             action = agent.choose_action(state)
             # obtain the reward and next state and some other information

@@ -10,6 +10,7 @@ import sys
 import time
 
 import cv2
+import keyboard
 import numpy as np
 from loguru import logger
 
@@ -62,13 +63,16 @@ if __name__ == "__main__":
     args = make_parser().parse_args()
 
     Genshin = Window(class_name="UnityWndClass", window_name=args.name)
-    DirectX = Capture(window=Genshin, capture_method="dxcam")
+    Camera = Capture(window=Genshin, capture_method="dxcam")
 
     model, class_names = load_model()
 
+    logger.info("Ready to detect. Press 'r' to start")
+    keyboard.wait("r")
+
     while True:
         start = time.time()
-        img = DirectX.capture()
+        img = Camera.capture()
         if img is not None:
             torch_image, cv_image = preprocess(img)
 
